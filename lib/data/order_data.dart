@@ -16,4 +16,7 @@ class OrderData {
   });
 
   static OrderData? currentOrder;
+
+  // CENTRAL SYSTEM MEMORY FOR ALL ORDERS
+  static final List<OrderData> orderHistory = [];
 }

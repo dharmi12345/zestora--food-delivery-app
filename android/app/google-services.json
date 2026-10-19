@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "941710398711",
+    "firebase_url": "https://zestora-the-food-app-default-rtdb.firebaseio.com",
+    "project_id": "zestora-the-food-app",
+    "storage_bucket": "zestora-the-food-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941710398711:android:6ee7fa0072f8da674d6ff2",
+        "android_client_info": {
+          "package_name": "com.example.zestora_foodapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjPG8iZE4hmLUO2dQgoTy5jauSGuulGJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

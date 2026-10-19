@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // 1. Import the package
 import 'package:zestora_foodapp/view/homescreen.dart';
 import 'package:zestora_foodapp/view/signupscreen.dart';
+import 'package:zestora_foodapp/view/forgotpassword_screen.dart';
 
 void main() {
   runApp(const ZestoraApp());
@@ -29,8 +31,52 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
+
+  // 2. Initialize GoogleSignIn configuration
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
+  // 3. Google Sign-In Function that opens account picker
+  Future<void> signInWithGoogle() async {
+    try {
+      // Triggers the native platform overlay to choose a Google account
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled the account picker dialog
+        return;
+      }
+
+      // Optional: You can access user data here
+      // String userEmail = googleUser.email;
+      // String displayName = googleUser.displayName ?? "";
+
+      // Show temporary success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Welcome ${googleUser.displayName}!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Redirect to Home Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-In failed: $error"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   void login() {
     String email = emailController.text.trim();
@@ -43,7 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
-
       return;
     }
 
@@ -54,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
-
       return;
     }
 
@@ -65,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
-
       return;
     }
 
@@ -76,7 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
-
       return;
     }
 
@@ -90,158 +132,113 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F2),
-
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-
           child: Column(
             children: [
               const SizedBox(height: 30),
-
               CircleAvatar(
                 radius: 50,
-
                 backgroundColor: Colors.orange.shade100,
-
                 child: const Icon(
                   Icons.fastfood,
                   size: 60,
                   color: Colors.orange,
                 ),
               ),
-
               const SizedBox(height: 20),
-
               const Text(
                 "Zestora",
-
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.orange,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               const Text(
                 "Delicious food delivered to your doorstep",
-
                 textAlign: TextAlign.center,
-
                 style: TextStyle(color: Colors.grey, fontSize: 15),
               ),
-
               const SizedBox(height: 40),
-
               TextField(
                 controller: emailController,
-
                 keyboardType: TextInputType.emailAddress,
-
                 decoration: InputDecoration(
                   hintText: "Email",
-
                   prefixIcon: const Icon(Icons.email),
-
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               TextField(
                 controller: passwordController,
-
                 obscureText: true,
-
                 decoration: InputDecoration(
                   hintText: "Password",
-
                   prefixIcon: const Icon(Icons.lock),
-
                   suffixIcon: const Icon(Icons.visibility_off),
-
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Align(
                 alignment: Alignment.centerRight,
-
                 child: TextButton(
-                  onPressed: () {},
-
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ForgotPasswordScreen(),
+                      ),
+                    );
+                  },
                   child: const Text(
                     "Forgot Password?",
                     style: TextStyle(color: Colors.orange),
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
-
               SizedBox(
                 width: double.infinity,
-
                 height: 55,
-
                 child: ElevatedButton(
                   onPressed: login,
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-
                   child: const Text(
                     "Login",
-
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
               ),
-
               const SizedBox(height: 15),
-
               SizedBox(
                 width: double.infinity,
-
                 height: 55,
-
+                // 4. Linked the button here to open the Google account selector
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    // Google login validation can be added later
-
-                    Navigator.pushReplacement(
-                      context,
-
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    );
-                  },
-
+                  onPressed: signInWithGoogle,
                   icon: const Icon(
                     Icons.g_mobiledata,
                     size: 35,
                     color: Colors.red,
                   ),
-
                   label: const Text(
                     "Continue with Google",
-
                     style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
-
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -249,30 +246,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-
                 children: [
                   const Text("Don't have an account? "),
-
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-
                         MaterialPageRoute(builder: (_) => const SignUpScreen()),
                       );
                     },
-
                     child: const Text(
                       "Sign Up",
-
                       style: TextStyle(
                         color: Colors.orange,
-
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -5,16 +5,21 @@ import 'package:intl/intl.dart';
 import 'package:zestora_foodapp/view/cartitem.dart';
 import 'package:zestora_foodapp/data/order_data.dart';
 
-List<OrderData> orderHistory = [];
-
-class OrderHistoryScreen extends StatelessWidget {
+class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
   @override
+  State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
+}
+
+class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  @override
   Widget build(BuildContext context) {
+    // Reads directly from the global state reference on build execution
+    final currentHistory = OrderData.orderHistory;
+
     return Scaffold(
       backgroundColor: const Color(0xffFFF8F2),
-
       appBar: AppBar(
         backgroundColor: Colors.orange,
         elevation: 0,
@@ -24,8 +29,7 @@ class OrderHistoryScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-
-      body: orderHistory.isEmpty
+      body: currentHistory.isEmpty
           ? const Center(
               child: Text(
                 "No Orders Yet",
@@ -34,16 +38,17 @@ class OrderHistoryScreen extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(15),
-              itemCount: orderHistory.length,
+              itemCount: currentHistory.length,
+              // Displays the most recent order at the top of the list
               itemBuilder: (context, index) {
-                final order = orderHistory[index];
+                final order = currentHistory[currentHistory.length - 1 - index];
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 15),
                   child: OrderCard(
                     image: "assets/images/burger.png",
-                    name: "Food Order",
-                    quantity: "1 Item",
+                    name: "ID: ${order.orderId}",
+                    quantity: "Paid via ${order.paymentMethod}",
                     price: "₹${order.totalAmount.toInt()}",
                     date: DateFormat(
                       "dd MMM yyyy, hh:mm a",
@@ -108,9 +113,7 @@ class OrderCard extends StatelessWidget {
                 },
               ),
             ),
-
             const SizedBox(width: 15),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,25 +121,31 @@ class OrderCard extends StatelessWidget {
                   Text(
                     name,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
-                  Text(quantity, style: const TextStyle(fontSize: 16)),
-
+                  Text(
+                    quantity,
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
                   const SizedBox(height: 10),
-
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 16),
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 14,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           date,
-                          style: const TextStyle(color: Colors.grey),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -144,7 +153,6 @@ class OrderCard extends StatelessWidget {
                 ],
               ),
             ),
-
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -154,7 +162,7 @@ class OrderCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: .15),
+                    color: statusColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -165,24 +173,20 @@ class OrderCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
+                const SizedBox(height: 15),
                 Text(
                   price,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
-                const SizedBox(height: 15),
-
+                const SizedBox(height: 10),
                 OutlinedButton(
                   onPressed: () {
                     cartItems.add(
                       CartItem(
-                        name: name,
+                        name: "Food Item",
                         image: image,
                         price: double.parse(price.replaceAll("₹", "")),
                         quantity: 1,
@@ -190,8 +194,8 @@ class OrderCard extends StatelessWidget {
                     );
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("$name added to cart"),
+                      const SnackBar(
+                        content: Text("Item added back to cart"),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -204,8 +208,12 @@ class OrderCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.orange),
                     foregroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                   ),
-                  child: const Text("Reorder"),
+                  child: const Text("Reorder", style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),

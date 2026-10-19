@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:zestora_foodapp/view/orderconfirmationscreen.dart';
 import 'package:zestora_foodapp/data/order_data.dart';
+// Ensure this path matches the exact name of your screen file
+import 'package:zestora_foodapp/view/order_history_screen.dart';
+// 1. CRITICAL IMPORT ADDED HERE
 
 class CardPaymentScreen extends StatefulWidget {
   final double totalAmount;
@@ -12,18 +15,14 @@ class CardPaymentScreen extends StatefulWidget {
 
 class _CardPaymentScreenState extends State<CardPaymentScreen> {
   final TextEditingController cardNumberController = TextEditingController();
-
   final TextEditingController cardHolderController = TextEditingController();
-
   final TextEditingController expiryController = TextEditingController();
-
   final TextEditingController cvvController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffFFF8F2),
-
       appBar: AppBar(
         backgroundColor: Colors.orange,
         centerTitle: true,
@@ -32,7 +31,6 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -46,9 +44,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 size: 50,
               ),
             ),
-
             const SizedBox(height: 25),
-
             TextField(
               controller: cardNumberController,
               keyboardType: TextInputType.number,
@@ -63,9 +59,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 fillColor: Colors.white,
               ),
             ),
-
             const SizedBox(height: 18),
-
             TextField(
               controller: cardHolderController,
               decoration: InputDecoration(
@@ -79,9 +73,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 fillColor: Colors.white,
               ),
             ),
-
             const SizedBox(height: 18),
-
             Row(
               children: [
                 Expanded(
@@ -99,9 +91,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 15),
-
                 Expanded(
                   child: TextField(
                     controller: cvvController,
@@ -121,9 +111,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
-
             Card(
               elevation: 5,
               shape: RoundedRectangleBorder(
@@ -141,7 +129,6 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     Text(
                       "₹${widget.totalAmount.toStringAsFixed(0)}",
                       style: const TextStyle(
@@ -154,9 +141,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 35),
-
             SizedBox(
               width: double.infinity,
               height: 58,
@@ -167,6 +152,7 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
+                // ... inside your Pay Securely button onPressed:
                 onPressed: () {
                   if (cardNumberController.text.isEmpty ||
                       cardHolderController.text.isEmpty ||
@@ -175,33 +161,34 @@ class _CardPaymentScreenState extends State<CardPaymentScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Please fill all details")),
                     );
-
                     return;
                   }
 
-                  OrderData.currentOrder = OrderData(
-                    orderId: "#ZT${DateTime.now().millisecondsSinceEpoch}",
-
-                    customerName: "Khandhediya Dharmi",
-
+                  // 1. Create the order object instance
+                  OrderData newPlacedOrder = OrderData(
+                    orderId:
+                        "ZT${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
+                    customerName: cardHolderController.text.trim(),
                     address:
                         "221, Krishna Apartment, Bhavnagar, Gujarat - 364001",
-
                     paymentMethod: "Credit / Debit Card",
-
                     totalAmount: widget.totalAmount,
-
                     orderTime: DateTime.now(),
                   );
 
+                  // 2. Add to centralized static storage tracker
+                  OrderData.orderHistory.add(newPlacedOrder);
+                  OrderData.currentOrder = newPlacedOrder;
+
+                  // Navigate to your Confirmation Screen
                   Navigator.pushReplacement(
                     context,
-
                     MaterialPageRoute(
                       builder: (_) => const OrderConfirmationScreen(),
                     ),
                   );
                 },
+
                 child: const Text(
                   "Pay Securely",
                   style: TextStyle(
